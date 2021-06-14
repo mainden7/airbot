@@ -32,15 +32,20 @@ class AirdropSource(metaclass=ABCMeta):
         self.credentials = credentials
         self.logged_in = False
 
-    def root_page_load(self):
-        """Loads the root page """
+    def root_page_load(self) -> None:
+        """Tells driver to load the root page od this source"""
         self.driver.get(self.root_url)
 
-    def __enter__(self):
+    def __enter__(self) -> "AirdropSource":
+        """
+        Make the very first instance of web driver here. Soon will be moved in
+        some kind of configurator module
+        :return: self
+        """
         self.driver = WebDriver().driver
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.driver.quit()
 
     @abstractmethod
