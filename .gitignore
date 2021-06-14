@@ -46,3 +46,4 @@ cover/*
 MANIFEST
 
 config.ini
+*.session
