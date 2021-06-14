@@ -3,7 +3,6 @@ import typing as ty
 
 from itertools import tee
 from itertools import filterfalse
-from importlib import import_module
 
 from airbot.cli.args import Arg
 from airbot.cli.args import CLICommand
@@ -20,20 +19,6 @@ def partition(pred: ty.Callable, iterable: ty.Iterable):
     """
     iter_1, iter_2 = tee(iterable)
     return filterfalse(pred, iter_1), filter(pred, iter_2)
-
-
-def lazy_load_command(import_path: str, func: str) -> ty.Callable:
-    """Create a lazy loader for command"""
-    _, _, name = import_path.rpartition(".")
-
-    def command(*args, **kwargs):
-        module = import_module(import_path)
-        func_ = getattr(module, func)
-        return func_(*args, **kwargs)
-
-    command.__name__ = name
-
-    return command
 
 
 def get_parser() -> argparse.ArgumentParser:
