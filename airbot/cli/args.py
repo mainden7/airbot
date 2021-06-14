@@ -1,9 +1,32 @@
 import os
 import argparse
 import typing as ty
-from airbot.cli.functions import lazy_load_command
+from importlib import import_module
 
 _UNSET = object()
+
+
+def lazy_load_command(import_path: str, func: str) -> ty.Callable:
+    """Create a lazy loader for command"""
+    _, _, name = import_path.rpartition(".")
+
+    def command(*args, **kwargs):
+        module = import_module(import_path)
+        func_ = getattr(module, func)
+        return func_(*args, **kwargs)
+
+    command.__name__ = name
+
+    return command
+
+
+def find_config():
+    dir_ = os.getcwd()
+    cf = os.path.join(dir_, "config.ini")
+    if os.path.exists(cf):
+        return cf
+    else:
+        raise FileNotFoundError
 
 
 class Arg:
@@ -60,17 +83,16 @@ CLICommand = ty.Union[ActionCommand, GroupCommand]
 ARG_DIR = Arg(
     ("-f", "--config-file"),
     help="Path to the configuration file",
-    default=os.getcwd(),
+    default=find_config(),
 )
 
 _commands: ty.List[CLICommand] = [
     ActionCommand(
         name="start",
         help=(
-            "Participate in all airdrops for specified in configuration file"
-            " sources"
+            "Participate in all airdrops"
         ),
-        func=lazy_load_command("airbot.cli.functions", "start"),
+        func=lazy_load_command("airbot.cli.commands", "start"),
         args=(ARG_DIR,),
     )
 ]
